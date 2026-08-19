@@ -1,0 +1,65 @@
+// Bootstrap - Configuration
+@import "bootstrap/scss/functions";
+// Custom bootstap variables
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/utilities";
+// Bootstrap - Layout
+@import "bootstrap/scss/root";
+@import "bootstrap/scss/reboot";
+@import "bootstrap/scss/type";
+@import "bootstrap/scss/containers";
+@import "bootstrap/scss/grid";
+@import "bootstrap/scss/helpers";
+// Bootstrap - Components
+@import "bootstrap/scss/tables";
+@import "bootstrap/scss/forms";
+@import "bootstrap/scss/buttons";
+@import "bootstrap/scss/dropdown";
+@import "bootstrap/scss/button-group";
+@import "bootstrap/scss/alert";
+@import "bootstrap/scss/modal";
+@import "bootstrap/scss/close";
+// Bootstrap - Helpers
+@import "bootstrap/scss/helpers";
+// Bootstrap - Utilities
+@import "bootstrap/scss/utilities/api";
+
+@import "leaflet/dist/leaflet.css";
+
+body {
+  display: flex;
+  height: 100vh;
+  margin: 0;
+}
+
+#app {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+#app>header {
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#app>header>aside {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#app>main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}

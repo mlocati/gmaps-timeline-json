@@ -1,0 +1,589 @@
+{
+  "$id": "http://github.com/mlocati/timeline-json-to-gpx.json",
+  "title": "Unofficial JSON schema for the Google Maps Timeline JSON export format",
+  "description": "This schema is not official and may not be complete",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [],
+  "properties": {
+    "semanticSegments": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/semanticSegment_timelinePath"
+          },
+          {
+            "$ref": "#/$defs/semanticSegment_visit"
+          },
+          {
+            "$ref": "#/$defs/semanticSegment_activity"
+          },
+          {
+            "$ref": "#/$defs/semanticSegment_timelineMemory"
+          }
+        ]
+      }
+    },
+    "rawSignals": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/rawSignals_position"
+          },
+          {
+            "$ref": "#/$defs/rawSignals_wifiScan"
+          },
+          {
+            "$ref": "#/$defs/rawSignals_activityRecord"
+          }
+        ]
+      }
+    },
+    "userLocationProfile": {
+      "$ref": "#/$defs/userLocationProfile"
+    }
+  },
+  "$defs": {
+    "dateTime": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\\.[0-9]{3}[+\\-][0-1][0-9]:[0-5][0-9]$"
+    },
+    "latLng": {
+      "type": "string",
+      "pattern": "^-?[0-9]?[0-9](\\.[0-9]{1,8})?°, -?([0-1]?[0-9])?[0-9](\\.[0-9]{1,8})?°$"
+    },
+    "probability": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "placeId": {
+      "type": "string",
+      "pattern": "^ChIJ[0-9A-Za-z_-]+$"
+    },
+    "activityType": {
+      "type": "string",
+      "enum": [
+        "BOATING",
+        "CYCLING",
+        "EXITING_VEHICLE",
+        "FLYING",
+        "IN_BUS",
+        "IN_FERRY",
+        "IN_PASSENGER_VEHICLE",
+        "IN_RAIL_VEHICLE",
+        "IN_ROAD_VEHICLE",
+        "IN_SUBWAY",
+        "IN_TRAIN",
+        "IN_TRAM",
+        "IN_VEHICLE",
+        "MOTORCYCLING",
+        "ON_BICYCLE",
+        "ON_FOOT",
+        "RUNNING",
+        "STILL",
+        "TILTING",
+        "WALKING",
+        "UNKNOWN",
+        "UNKNOWN_ACTIVITY_TYPE"
+      ]
+    },
+    "semanticSegment_timelinePath": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["startTime", "endTime", "timelinePath"],
+      "properties": {
+        "startTime": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "endTime": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "timelinePath": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["point", "time"],
+            "properties": {
+              "point": {
+                "$ref": "#/$defs/latLng"
+              },
+              "time": {
+                "$ref": "#/$defs/dateTime"
+              }
+            }
+          }
+        }
+      }
+    },
+    "semanticSegment_visit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "startTime",
+        "endTime",
+        "startTimeTimezoneUtcOffsetMinutes",
+        "endTimeTimezoneUtcOffsetMinutes",
+        "visit"
+      ],
+      "properties": {
+        "startTime": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "endTime": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "startTimeTimezoneUtcOffsetMinutes": {
+          "type": "integer"
+        },
+        "endTimeTimezoneUtcOffsetMinutes": {
+          "type": "integer"
+        },
+        "visit": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["hierarchyLevel", "probability", "topCandidate"],
+          "properties": {
+            "hierarchyLevel": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "probability": {
+              "$ref": "#/$defs/probability"
+            },
+            "topCandidate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "placeId",
+                "semanticType",
+                "probability",
+                "placeLocation"
+              ],
+              "properties": {
+                "placeId": {
+                  "$ref": "#/$defs/placeId"
+                },
+                "semanticType": {
+                  "type": "string",
+                  "enum": [
+                    "HOME",
+                    "WORK",
+                    "UNKNOWN",
+                    "SEARCHED_ADDRESS",
+                    "INFERRED_HOME",
+                    "INFERRED_WORK",
+                    "ALIASED_LOCATION"
+                  ]
+                },
+                "probability": {
+                  "$ref": "#/$defs/probability"
+                },
+                "placeLocation": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["latLng"],
+                  "properties": {
+                    "latLng": {
+                      "$ref": "#/$defs/latLng"
+                    }
+                  }
+                }
+              }
+            },
+            "isTimelessVisit": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "semanticSegment_activity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "startTime",
+        "endTime",
+        "startTimeTimezoneUtcOffsetMinutes",
+        "endTimeTimezoneUtcOffsetMinutes",
+        "activity"
+      ],
+      "properties": {
+        "startTime": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "endTime": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "startTimeTimezoneUtcOffsetMinutes": {
+          "type": "integer"
+        },
+        "endTimeTimezoneUtcOffsetMinutes": {
+          "type": "integer"
+        },
+        "activity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["start", "end", "distanceMeters", "topCandidate"],
+          "properties": {
+            "start": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["latLng"],
+              "properties": {
+                "latLng": {
+                  "$ref": "#/$defs/latLng"
+                }
+              }
+            },
+            "end": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["latLng"],
+              "properties": {
+                "latLng": {
+                  "$ref": "#/$defs/latLng"
+                }
+              }
+            },
+            "distanceMeters": {
+              "type": "number",
+              "minimum": 0
+            },
+            "topCandidate": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type", "probability"],
+              "properties": {
+                "type": {
+                  "$ref": "#/$defs/activityType"
+                },
+                "probability": {
+                  "$ref": "#/$defs/probability"
+                }
+              }
+            },
+            "probability": {
+              "$ref": "#/$defs/probability"
+            },
+            "parking": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["location", "startTime"],
+              "properties": {
+                "location": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["latLng"],
+                  "properties": {
+                    "latLng": {
+                      "$ref": "#/$defs/latLng"
+                    }
+                  }
+                },
+                "startTime": {
+                  "$ref": "#/$defs/dateTime"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "semanticSegment_timelineMemory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "startTime",
+        "endTime",
+        "startTimeTimezoneUtcOffsetMinutes",
+        "endTimeTimezoneUtcOffsetMinutes",
+        "timelineMemory"
+      ],
+      "properties": {
+        "startTime": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "endTime": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "startTimeTimezoneUtcOffsetMinutes": {
+          "type": "integer"
+        },
+        "endTimeTimezoneUtcOffsetMinutes": {
+          "type": "integer"
+        },
+        "timelineMemory": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["trip"],
+          "properties": {
+            "trip": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["distanceFromOriginKms"],
+              "properties": {
+                "distanceFromOriginKms": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "destinations": {
+                  "type": "array",
+                  "minItems": 0,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["identifier"],
+                    "properties": {
+                      "identifier": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["placeId"],
+                        "properties": {
+                          "placeId": {
+                            "$ref": "#/$defs/placeId"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "rawSignals_position": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["position"],
+      "properties": {
+        "position": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["LatLng", "accuracyMeters", "source", "timestamp"],
+          "properties": {
+            "LatLng": {
+              "$ref": "#/$defs/latLng"
+            },
+            "accuracyMeters": {
+              "type": "number",
+              "minimum": 0
+            },
+            "source": {
+              "type": "string",
+              "enum": ["GPS", "WIFI_ONLY", "UNKNOWN"]
+            },
+            "timestamp": {
+              "$ref": "#/$defs/dateTime"
+            },
+            "altitudeMeters": {
+              "type": "number"
+            },
+            "speedMetersPerSecond": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "rawSignals_wifiScan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["wifiScan"],
+      "properties": {
+        "wifiScan": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["deliveryTime"],
+          "properties": {
+            "deliveryTime": {
+              "$ref": "#/$defs/dateTime"
+            },
+            "devicesRecords": {
+              "type": "array",
+              "minItems": 0,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["mac", "rawRssi"],
+                "properties": {
+                  "mac": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 281474976710655
+                  },
+                  "rawRssi": {
+                    "type": "integer",
+                    "minimum": -100,
+                    "maximum": 0
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "rawSignals_activityRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["activityRecord"],
+      "properties": {
+        "activityRecord": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["probableActivities", "timestamp"],
+          "properties": {
+            "probableActivities": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["type", "confidence"],
+                "properties": {
+                  "type": {
+                    "$ref": "#/$defs/activityType"
+                  },
+                  "confidence": {
+                    "$ref": "#/$defs/probability"
+                  }
+                }
+              }
+            },
+            "timestamp": {
+              "$ref": "#/$defs/dateTime"
+            }
+          }
+        }
+      }
+    },
+    "userLocationProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "frequentPlaces": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["placeId", "placeLocation"],
+            "properties": {
+              "placeId": {
+                "$ref": "#/$defs/placeId"
+              },
+              "placeLocation": {
+                "$ref": "#/$defs/latLng"
+              },
+              "label": {
+                "type": "string",
+                "enum": ["HOME", "WORK"]
+              }
+            }
+          }
+        },
+        "frequentTrips": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "waypointIds",
+              "modeDistribution",
+              "startTimeMinutes",
+              "endTimeMinutes",
+              "durationMinutes",
+              "confidence",
+              "commuteDirection"
+            ],
+            "properties": {
+              "waypointIds": {
+                "type": "array",
+                "minItems": 2,
+                "items": {
+                  "$ref": "#/$defs/placeId"
+                }
+              },
+              "modeDistribution": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["mode", "rate"],
+                  "properties": {
+                    "mode": {
+                      "$ref": "#/$defs/activityType"
+                    },
+                    "rate": {
+                      "$ref": "#/$defs/probability"
+                    }
+                  }
+                }
+              },
+              "startTimeMinutes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "endTimeMinutes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "durationMinutes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "confidence": {
+                "$ref": "#/$defs/probability"
+              },
+              "commuteDirection": {
+                "type": "string",
+                "enum": [
+                  "COMMUTE_DIRECTION_HOME_TO_WORK",
+                  "COMMUTE_DIRECTION_WORK_TO_HOME"
+                ]
+              }
+            }
+          }
+        },
+        "persona": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "travelModeAffinities": {
+              "type": "array",
+              "minItems": 0,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["mode", "affinity"],
+                "properties": {
+                  "mode": {
+                    "$ref": "#/$defs/activityType"
+                  },
+                  "affinity": {
+                    "$ref": "#/$defs/probability"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
