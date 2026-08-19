@@ -140,6 +140,9 @@ function setApiKeyAction(action: ApiKeyAction): void {
     <div class="form-text">
       Used to resolve the names of the visited places.
       <template v-if="!apiKeyIsSet">Leave it empty to disable the place name lookup.</template>
+      <br />
+      The API key is stored only on this computer (in the browser local storage): it's never sent to anyone but Google,
+      and only to look up the place names.
     </div>
     <details v-if="apiKeyAction === ApiKeyAction.Set" class="mt-3">
       <summary>How to get an API key</summary>
