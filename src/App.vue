@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import TimelineViewer from './components/TimelineViewer.vue';
-import {computed, ref} from 'vue';
+import {computed, ref, watchEffect} from 'vue';
 import {loadTimelineJson, sliceTimelineByDateRange, type Timeline} from './timeline';
 import * as z from 'zod';
 import DateRangeSelector from './components/DateRangeSelector.vue';
@@ -21,6 +21,12 @@ const slicedTimeline = computed<Timeline | null>(() => {
 
 const loadError = ref<string>('');
 
+const baseWindowTitle = document.title;
+const loadedFileName = ref<string>('');
+watchEffect(() => {
+  document.title = loadedFileName.value === '' ? baseWindowTitle : `${loadedFileName.value} - ${baseWindowTitle}`;
+});
+
 const showOptions = ref<boolean>(false);
 const showTimelineHelp = ref<boolean>(false);
 const timelineViewerKey = ref<number>(0);
@@ -36,6 +42,7 @@ async function onFileChange(event: Event): Promise<void> {
     return;
   }
   loadError.value = '';
+  loadedFileName.value = '';
   try {
     if (target?.files?.length !== 1) {
       return;
@@ -44,6 +51,7 @@ async function onFileChange(event: Event): Promise<void> {
     const jsonText = await selectedFile.text();
     target.disabled = true;
     timeline.value = loadTimelineJson(jsonText);
+    loadedFileName.value = selectedFile.name;
   } catch (error) {
     if (error instanceof z.ZodError) {
       loadError.value = z.prettifyError(error);
