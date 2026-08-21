@@ -1,5 +1,5 @@
 {
-  "name": "timeline-json-to-gpx",
+  "name": "gmaps-timeline-json",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -23,15 +23,15 @@
     "bootstrap": "^5.3.8",
     "leaflet": "^1.9.4",
     "prettier": "^3.9.6",
-    "sass": "^1.102.0",
-    "tsx": "^4.23.7",
-    "typescript": "~6.0.2",
-    "vite": "^8.2.0",
-    "vue": "^3.5.40",
-    "vue-tsc": "^3.3.8",
+    "sass": "^1.103.1",
+    "tsx": "^4.23.12",
+    "typescript": "^6.0.3",
+    "vite": "^8.2.2",
+    "vue": "^3.5.41",
+    "vue-tsc": "^3.3.11",
     "zod": "^4.4.3"
   },
   "allowScripts": {
-    "esbuild@0.28.1": true
+    "esbuild@0.28.2": true
   }
 }

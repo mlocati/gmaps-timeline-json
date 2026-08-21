@@ -1,5 +1,5 @@
 {
-  "$id": "http://github.com/mlocati/timeline-json-to-gpx.json",
+  "$id": "http://github.com/mlocati/gmaps-timeline-json.json",
   "title": "Unofficial JSON schema for the Google Maps Timeline JSON export format",
   "description": "This schema is not official and may not be complete",
   "type": "object",
@@ -161,12 +161,7 @@
             "topCandidate": {
               "type": "object",
               "additionalProperties": false,
-              "required": [
-                "placeId",
-                "semanticType",
-                "probability",
-                "placeLocation"
-              ],
+              "required": ["placeId", "semanticType", "probability", "placeLocation"],
               "properties": {
                 "placeId": {
                   "$ref": "#/$defs/placeId"
@@ -551,10 +546,7 @@
               },
               "commuteDirection": {
                 "type": "string",
-                "enum": [
-                  "COMMUTE_DIRECTION_HOME_TO_WORK",
-                  "COMMUTE_DIRECTION_WORK_TO_HOME"
-                ]
+                "enum": ["COMMUTE_DIRECTION_HOME_TO_WORK", "COMMUTE_DIRECTION_WORK_TO_HOME"]
               }
             }
           }
