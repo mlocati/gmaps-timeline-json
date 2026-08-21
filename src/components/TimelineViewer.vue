@@ -99,20 +99,43 @@ function formatDateTime(date: Date): string {
  * Show the time (and the date, if the displayed range is not a single day) corresponding to the
  * position of the mouse pointer along the timeline path: the time is linearly interpolated between
  * the two points delimiting the path segment the mouse pointer is closest to.
+ * That path segment is also highlighted while the mouse pointer hovers the path.
  */
 function setTimelinePathTooltip(polyline: L.Polyline, segment: SemanticSegment_TimelinePath): void {
   const ttip = document.createElement('div');
   ttip.style.fontSize = '12px';
   ttip.style.fontWeight = 'bold';
   ttip.style.whiteSpace = 'pre';
-  const interpolatedTime = (latLng: L.LatLng): Date => {
+  const pathLayer = dataLayers[0];
+  let highlight: L.Polyline | null = null;
+  const removeHighlight = (): void => {
+    if (highlight) {
+      pathLayer.removeLayer(highlight);
+      highlight = null;
+    }
+  };
+  const highlightSegment = (index: number): void => {
+    const points = [segment.timelinePath[index - 1].point, segment.timelinePath[index].point];
+    if (highlight) {
+      highlight.setLatLngs(points);
+    } else {
+      highlight = L.polyline(points, {color: 'orange', weight: 9, opacity: 0.8, interactive: false});
+      highlight.addTo(pathLayer);
+      highlight.bringToBack();
+    }
+  };
+  /**
+   * Find the timeline path segment nearest to the mouse pointer, returning its ending point index
+   * and how far (from 0 to 1) the mouse pointer is between its starting and ending points.
+   */
+  const nearestPathSegment = (latLng: L.LatLng): {index: number; ratio: number} | null => {
     const path = segment.timelinePath;
     if (!map || path.length < 2) {
-      return path[0].time.date;
+      return null;
     }
     const mousePoint = map.latLngToLayerPoint(latLng);
     let bestDistance = Number.POSITIVE_INFINITY;
-    let bestTime = path[0].time.date.getTime();
+    let result: {index: number; ratio: number} | null = null;
     let previousPoint = map.latLngToLayerPoint(path[0].point);
     for (let index = 1; index < path.length; index++) {
       const currentPoint = map.latLngToLayerPoint(path[index].point);
@@ -120,21 +143,29 @@ function setTimelinePathTooltip(polyline: L.Polyline, segment: SemanticSegment_T
       const distance = closestPoint.distanceTo(mousePoint);
       if (distance < bestDistance) {
         bestDistance = distance;
-        const segmentLength = previousPoint.distanceTo(currentPoint);
-        const ratio = segmentLength === 0 ? 0 : previousPoint.distanceTo(closestPoint) / segmentLength;
-        const previousTime = path[index - 1].time.date.getTime();
-        const currentTime = path[index].time.date.getTime();
-        bestTime = previousTime + (currentTime - previousTime) * ratio;
+        const length = previousPoint.distanceTo(currentPoint);
+        result = {index, ratio: length === 0 ? 0 : previousPoint.distanceTo(closestPoint) / length};
       }
       previousPoint = currentPoint;
     }
-    return new Date(bestTime);
+    return result;
   };
   const updateTooltip = (event: L.LeafletMouseEvent): void => {
-    ttip.textContent = formatDateTime(interpolatedTime(event.latlng));
+    const nearest = nearestPathSegment(event.latlng);
+    if (nearest === null) {
+      removeHighlight();
+      ttip.textContent = formatDateTime(segment.timelinePath[0].time.date);
+      return;
+    }
+    highlightSegment(nearest.index);
+    const previousTime = segment.timelinePath[nearest.index - 1].time.date.getTime();
+    const currentTime = segment.timelinePath[nearest.index].time.date.getTime();
+    ttip.textContent = formatDateTime(new Date(previousTime + (currentTime - previousTime) * nearest.ratio));
   };
   polyline.on('mouseover', updateTooltip);
   polyline.on('mousemove', updateTooltip);
+  polyline.on('mouseout', removeHighlight);
+  polyline.on('remove', removeHighlight);
   polyline.bindTooltip(ttip, {sticky: true});
 }
 
